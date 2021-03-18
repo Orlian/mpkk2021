@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import MediaTable from './components/MediaTable';
 
 const picArray = [
