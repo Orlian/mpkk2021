@@ -32,6 +32,6 @@ const App = () => {
   return (
     <MediaTable picArray={picArray}/>
   );
-}
+};
 
 export default App;
