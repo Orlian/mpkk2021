@@ -1,8 +1,10 @@
+/* eslint-disable max-len */
 import MediaTable from './components/MediaTable';
 
 const picArray = [
   {
     title: 'Title 1',
+    // eslint-disable-next-line max-len
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sodales enim eget leo condimentum vulputate. Sed lacinia consectetur fermentum. Vestibulum lobortis purus id nisi mattis posuere. Praesent sagittis justo quis nibh ullamcorper, eget elementum lorem consectetur. Pellentesque eu consequat justo, eu sodales eros.',
     thumbnails: {
       w160: 'https://placekitten.com/160/161',
