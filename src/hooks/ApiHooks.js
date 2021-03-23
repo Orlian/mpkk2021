@@ -19,5 +19,19 @@ const useAllMedia = () => {
   }, []);
   return picArray;
 };
-
+/*
+const useSingleMedia = (id) => {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const loadSingle = async () => {
+      console.log('useSingleMedia id', id);
+      const response = await fetch(baseUrl + 'media/' + id);
+      const file = await response.json();
+      setData(file);
+    };
+    loadSingle();
+  }, []);
+  return data;
+};
+*/
 export {useAllMedia};
