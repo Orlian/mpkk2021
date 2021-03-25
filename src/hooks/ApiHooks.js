@@ -1,6 +1,18 @@
 import {baseUrl} from '../utils/variables';
 import {useState, useEffect} from 'react';
 
+const doFetch = async (url, options = {}) => {
+  const response = await fetch(url, options);
+  const json = await response.json();
+  if (json.error) {
+    throw new Error(json.message + ': ' + json.error);
+  } else if (!response.ok) {
+    throw new Error('doFetch failed');
+  } else {
+    return json;
+  }
+};
+
 const useAllMedia = () => {
   const [picArray, setPicArray] = useState([]);
   useEffect(() => {
@@ -19,19 +31,53 @@ const useAllMedia = () => {
   }, []);
   return picArray;
 };
-/*
-const useSingleMedia = (id) => {
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    const loadSingle = async () => {
-      console.log('useSingleMedia id', id);
-      const response = await fetch(baseUrl + 'media/' + id);
-      const file = await response.json();
-      setData(file);
+
+const useUsers = () => {
+  const register = async (inputs) => {
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
     };
-    loadSingle();
-  }, []);
-  return data;
+    try {
+      const response = await fetch(baseUrl + 'users', fetchOptions);
+      console.log('register response', response);
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+  const checkUserAvailable = async (input) => {
+    try {
+      const response = await doFetch(baseUrl + 'users/username/' + input);
+      return response.available;
+    } catch (e) {
+      console.error(e.message);
+    }
+  };
+
+  return {register, checkUserAvailable};
 };
-*/
-export {useAllMedia};
+
+
+const useLogin = () => {
+  const postLogin = async (inputs) => {
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputs),
+    };
+    try {
+      const response = await doFetch(baseUrl + 'login', fetchOptions);
+      return response;
+    } catch (e) {
+      console.error(e.message);
+    }
+  };
+  return {postLogin};
+};
+
+export {useAllMedia, useUsers, useLogin};
