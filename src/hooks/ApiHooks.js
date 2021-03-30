@@ -56,8 +56,21 @@ const useUsers = () => {
       console.error(e.message);
     }
   };
+  const getUser = async (token) => {
+    const fetchOptions = {
+      method: 'GET',
+      headers: {
+        'x-access-token': token,
+      },
+    };
+    try {
+      return await doFetch(baseUrl + 'users/user', fetchOptions);
+    } catch (e) {
+      throw new Error();
+    }
+  };
 
-  return {register, checkUserAvailable};
+  return {register, checkUserAvailable, getUser};
 };
 
 
