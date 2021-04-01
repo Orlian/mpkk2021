@@ -42,8 +42,9 @@ const useUsers = () => {
       body: JSON.stringify(inputs),
     };
     try {
-      const response = await fetch(baseUrl + 'users', fetchOptions);
-      console.log('register response', response);
+      const response = await doFetch(baseUrl + 'users', fetchOptions);
+      console.log('ApiHooks register response', response);
+      return response;
     } catch (e) {
       console.log(e.message);
     }
