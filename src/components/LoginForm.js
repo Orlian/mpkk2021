@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {withRouter} from 'react-router-dom';
 import {MediaContext} from '../contexts/MediaContext';
 import {useContext} from 'react';
+import {Button, Grid, TextField, Typography} from '@material-ui/core';
 
 const LoginForm = ({history}) => {
   const [user, setUser] = useContext(MediaContext);
@@ -21,13 +22,50 @@ const LoginForm = ({history}) => {
   const {inputs, handleSubmit, handleInputChange} = useLoginForm(doLogin);
   console.log('LoginForm inputs', inputs, user);
   return (
-    <form onSubmit={handleSubmit}>
-      <input name="username" type="text" onChange={handleInputChange}
-        value={inputs.username}/>
-      <input name="password" type="password" onChange={handleInputChange}
-        value={inputs.password}/>
-      <button>Login</button>
-    </form>
+    <Grid container>
+      <Grid item xs={12}>
+        <Typography
+          component="h1"
+          variant="h2"
+          gutterBottom>Login</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <form onSubmit={handleSubmit}>
+          <Grid container>
+            <Grid container item>
+              <TextField
+                fullWidth
+                type="text"
+                name="username"
+                label="Username"
+                onChange={handleInputChange}
+                value={inputs.username}
+              />
+            </Grid>
+            <Grid container item>
+              <TextField
+                fullWidth
+                type="password"
+                name="password"
+                label="Password"
+                onChange={handleInputChange}
+                value={inputs.password}
+              />
+            </Grid>
+
+            <Grid container item>
+              <Button
+                fullWidth
+                color="primary"
+                type="submit"
+                variant="contained">
+                Login
+              </Button>
+            </Grid>
+          </Grid>
+        </form>
+      </Grid>
+    </Grid>
   );
 };
 
