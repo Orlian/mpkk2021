@@ -11,10 +11,11 @@ import {
 
 const useStyles = makeStyles({
   root: {
-    maxWidth: 345,
+    maxWidth: 400,
+    margin: 'auto',
   },
   media: {
-    height: 140,
+    height: 200,
   },
 });
 
