@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import PropTypes from 'prop-types';
 import {uploadsUrl} from '../utils/variables';
 import {Link} from 'react-router-dom';
@@ -6,7 +7,7 @@ const MediaRow = ({file}) => {
   return (
     <tr>
       <td>
-        <img src={uploadsUrl + file.thumbnails.w160} alt={file.title}/>
+        <img src={file.thumbnails ? uploadsUrl + file.thumbnails.w160 : '#'} alt={file.title}/>
       </td>
       <td>
         <h4>{file.title}</h4>

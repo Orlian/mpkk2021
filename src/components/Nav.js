@@ -14,7 +14,7 @@ const Nav = ({history}) => {
       try {
         const token = localStorage.getItem('token');
         const userData = await getUser(token);
-        setUser(user);
+        setUser(userData);
       } catch (e) {
         history.push('/');
       }
