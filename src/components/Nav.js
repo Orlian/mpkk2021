@@ -49,6 +49,11 @@ const Nav = ({history}) => {
             Profile
           </li>
         </Link>
+        <Link to="/upload">
+          <li className={classes.navitem}>
+            Upload
+          </li>
+        </Link>
         <Link to="/logout">
           <li className={classes.navitem}>
             Logout

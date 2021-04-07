@@ -13,23 +13,54 @@ const doFetch = async (url, options = {}) => {
   }
 };
 
-const useAllMedia = () => {
+const useMedia = (update = false) => {
   const [picArray, setPicArray] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    const loadMedia = async () => {
+    if (update) {
+      try {
+        getMedia();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+  }, []);
+  const getMedia = async () => {
+    try {
+      setLoading(true);
       const response = await fetch(baseUrl + 'media');
       const files = await response.json();
-      console.log(files);
       const media = await Promise.all(files.map(async (item) => {
         const resp = await fetch(baseUrl + 'media/' + item.file_id);
         return resp.json();
       }));
-
       setPicArray(media);
+    } catch (e) {
+      throw new Error(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const postMedia = async (fd, token) => {
+    setLoading(true);
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'x-access-token': token,
+      },
+      body: fd,
     };
-    loadMedia();
-  }, []);
-  return picArray;
+    try {
+      const response = await doFetch(baseUrl + 'media', fetchOptions);
+      return response;
+    } catch (e) {
+      throw new Error('Upload failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+  return {getMedia, postMedia, loading, picArray};
 };
 
 const useUsers = () => {
@@ -94,4 +125,4 @@ const useLogin = () => {
   return {postLogin};
 };
 
-export {useAllMedia, useUsers, useLogin};
+export {useMedia, useUsers, useLogin};
