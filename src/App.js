@@ -22,7 +22,6 @@ const App = () => {
         </Switch>
       </MediaProvider>
     </Router>
-
   );
 };
 
