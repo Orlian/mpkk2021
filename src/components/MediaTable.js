@@ -1,7 +1,6 @@
 /* eslint-disable no-trailing-spaces */
 import MediaRow from './MediaRow';
 import {useMedia} from '../hooks/ApiHooks';
-
 import {
   CircularProgress,
   GridList,
@@ -33,6 +32,8 @@ const MediaTable = () => {
 
   const {picArray, loading} = useMedia(true);
 
+  console.log('MediaTable', picArray);
+
   return (
     <div className={classes.root}>
       <GridList
@@ -55,5 +56,4 @@ const MediaTable = () => {
     </div>
   );
 };
-
 export default MediaTable;

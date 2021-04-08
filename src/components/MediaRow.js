@@ -1,28 +1,46 @@
 /* eslint-disable max-len */
 import PropTypes from 'prop-types';
 import {uploadsUrl} from '../utils/variables';
-import {Link} from 'react-router-dom';
+import {Link as RouterLink} from 'react-router-dom';
+import {GridListTileBar, IconButton, makeStyles} from '@material-ui/core';
+import PageviewIcon from '@material-ui/icons/Pageview';
+
+const useStyles = makeStyles((theme) => ({
+  icon: {
+    color: 'rgba(255, 255, 255, 0.54)',
+  },
+}));
 
 const MediaRow = ({file}) => {
+  const classes = useStyles();
   return (
-    <tr>
-      <td>
-        <img src={file.thumbnails ? uploadsUrl + file.thumbnails.w160 : '#'} alt={file.title}/>
-      </td>
-      <td>
-        <h4>{file.title}</h4>
-        <p>{file.description}</p>
-      </td>
-      <td>
-        <Link to={
-          {
-            pathname: '/single',
-            state: file,
-          }
-        }>View</Link>
-      </td>
-    </tr>
-
+    <>
+      <img
+        src={uploadsUrl + file.thumbnails?.w320}
+        alt={file.title}
+      />
+      <GridListTileBar
+        title={file.title}
+        subtitle={file.description}
+        actionIcon={
+          <>
+            <IconButton
+              aria-label={`info about ${file.title}`}
+              component={RouterLink}
+              to={
+                {
+                  pathname: '/single',
+                  state: file,
+                }
+              }
+              className={classes.icon}
+            >
+              <PageviewIcon fontSize="large" />
+            </IconButton>
+          </>
+        }
+      />
+    </>
   );
 };
 

@@ -1,33 +1,66 @@
+/* eslint-disable max-len */
 import useUploadForm from '../hooks/UploadHooks';
-import {useMedia} from '../hooks/ApiHooks';
-import {CircularProgress, Button, Grid, Typography} from '@material-ui/core';
+import {useMedia, useTag} from '../hooks/ApiHooks';
+import {
+  CircularProgress,
+  Button,
+  Grid,
+  Typography,
+  Slider,
+} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import {useEffect} from 'react';
 import {ValidatorForm, TextValidator} from 'react-material-ui-form-validator';
+import useSlider from '../hooks/SliderHooks';
 
 const Upload = ({history}) => {
   const {postMedia, loading} = useMedia();
+  const {postTag} = useTag();
+
+  const validators = {
+    title: ['required', 'minStringLength: 3'],
+    description: ['minStringLength: 5'],
+  };
+
+  const errorMessages = {
+    title: ['required', 'minimum 3 characters', 'Unavailable'],
+    description: ['minimum 5 characters'],
+  };
 
   const doUpload = async () => {
     try {
       const fd = new FormData();
       fd.append('title', inputs.title);
-      fd.append('description', inputs.description);
+      const desc = {
+        description: inputs.description,
+        filters: sliderInputs,
+      };
+      fd.append('description', JSON.stringify(desc));
       fd.append('file', inputs.file);
-      const result = postMedia(fd, localStorage.getItem('token'));
+      const result = await postMedia(fd, localStorage.getItem('token'));
       console.log('doUpload result', result);
+      const tagResult = await postTag(
+          localStorage.getItem('token'),
+          result.file_id);
+      console.log('postTag result', tagResult);
       history.push('/home');
     } catch (e) {
       alert(e.message);
     }
   };
   const {inputs, handleInputChange, handleSubmit, handleFileChange, setInputs} =
-    useUploadForm(doUpload, {
-      title: '',
-      description: '',
-      file: null,
-      dataUrl: '',
-    });
+      useUploadForm(doUpload, {
+        title: '',
+        description: '',
+        file: null,
+        dataUrl: '',
+      });
+  const [sliderInputs, handleSliderChange] = useSlider({
+    brightness: 100,
+    contrast: 100,
+    saturate: 100,
+    sepia: 0,
+  });
   useEffect(() => {
     const reader = new FileReader();
     reader.addEventListener('load', () => {
@@ -46,8 +79,8 @@ const Upload = ({history}) => {
         }));
       }
     }
-  }, [inputs]);
-  console.log('Uploads inputs', inputs);
+  }, [inputs.file]);
+  console.log(inputs, sliderInputs);
 
   return (
     <Grid container>
@@ -57,66 +90,122 @@ const Upload = ({history}) => {
           variant="h2"
           gutterBottom
         >
-          Upload
+            Upload
         </Typography>
       </Grid>
-      {inputs.dataUrl.length > 0 &&
-      <Grid item xs={12}>
-        <img src={inputs.dataUrl}/>
-      </Grid>
-      }
       <Grid item>
         {!loading ?
-          <ValidatorForm onSubmit={handleSubmit}>
-            <Grid container>
-              <Grid container item>
-                <TextValidator
-                  fullWidth
-                  name="title"
-                  label="Title"
-                  value={inputs.title}
-                  onChange={handleInputChange}
-                />
+            <ValidatorForm onSubmit={handleSubmit}>
+              <Grid container>
+                <Grid container item>
+                  <TextValidator
+                    fullWidth
+                    name="title"
+                    label="Title"
+                    value={inputs.title}
+                    onChange={handleInputChange}
+                    validators={validators.title}
+                    errorMessages={errorMessages.title}
+                  />
+                </Grid>
+                <Grid container item>
+                  <TextValidator
+                    fullWidth
+                    name="description"
+                    label="Description"
+                    value={inputs.description}
+                    onChange={handleInputChange}
+                    validators={validators.description}
+                    errorMessages={errorMessages.description}
+                  />
+                </Grid>
+                <Grid container item>
+                  <TextValidator
+                    fullWidth
+                    type="file"
+                    name="file"
+                    accept="image/*, audio/*, video/*"
+                    onChange={handleFileChange}
+                  />
+                </Grid>
+                <Grid container item>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    variant="contained"
+                    fullWidth
+                  >
+                    Send
+                  </Button>
+                </Grid>
+                {inputs.dataUrl.length > 0 &&
+                <>
+                  <Grid item xs={8}>
+                    <img src={inputs.dataUrl}
+                      style={{
+                        filter: `brightness(${sliderInputs.brightness}%)
+                      contrast(${sliderInputs.contrast}%)
+                      saturate(${sliderInputs.saturate}%)
+                      sepia(${sliderInputs.sepia}%)`,
+                      }}/>
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={8}>
+                      <Typography>Brightness</Typography>
+                      <Slider
+                        min={0}
+                        max={200}
+                        step={1}
+                        name="brightness"
+                        value={sliderInputs?.brightness}
+                        onChange={handleSliderChange}/>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>Contrast</Typography>
+                      <Slider
+                        min={0}
+                        max={200}
+                        step={1}
+                        name="contrast"
+                        value={sliderInputs?.contrast}
+                        onChange={handleSliderChange}/>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>Saturate</Typography>
+                      <Slider
+                        min={0}
+                        max={200}
+                        step={1}
+                        name="saturate"
+                        value={sliderInputs?.saturate}
+                        onChange={handleSliderChange}/>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Typography>Sepia</Typography>
+                      <Slider
+                        min={0}
+                        max={100}
+                        step={1}
+                        name="sepia"
+                        value={sliderInputs?.sepia}
+                        onChange={handleSliderChange}/>
+                    </Grid>
+                  </Grid>
+                </>
+                }
               </Grid>
-              <Grid container item>
-                <TextValidator
-                  fullWidth
-                  name="description"
-                  label="Description"
-                  value={inputs.description}
-                  onChange={handleInputChange}
-                />
-              </Grid>
-              <Grid container item>
-                <TextValidator
-                  fullWidth
-                  type="file"
-                  name="file"
-                  accept="image/*, audio/*, video/*"
-                  onChange={handleFileChange}
-                />
-              </Grid>
-              <Grid container item>
-                <Button
-                  type="submit"
-                  color="primary"
-                  variant="contained"
-                  fullWidth
-                >
-                  Lähetä
-                </Button>
-              </Grid>
-            </Grid>
-          </ValidatorForm> :
-          <CircularProgress/>
+            </ValidatorForm> :
+            <CircularProgress/>
         }
       </Grid>
     </Grid>
   );
-};
+}
+;
 
-Upload.propTypes = {
-  history: PropTypes.object,
-};
+Upload.propTypes =
+  {
+    history: PropTypes.object,
+  };
 
 export default Upload;

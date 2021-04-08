@@ -1,4 +1,4 @@
-import {baseUrl} from '../utils/variables';
+import {appIdentifier, baseUrl} from '../utils/variables';
 import {useState, useEffect} from 'react';
 
 const doFetch = async (url, options = {}) => {
@@ -28,7 +28,7 @@ const useMedia = (update = false) => {
   const getMedia = async () => {
     try {
       setLoading(true);
-      const response = await fetch(baseUrl + 'media');
+      const response = await fetch(baseUrl + 'tags/' + appIdentifier);
       const files = await response.json();
       const media = await Promise.all(files.map(async (item) => {
         const resp = await fetch(baseUrl + 'media/' + item.file_id);
@@ -101,8 +101,21 @@ const useUsers = () => {
       throw new Error();
     }
   };
+  const getUserById = async (token, id) => {
+    const fetchOptions = {
+      method: 'GET',
+      headers: {
+        'x-access-token': token,
+      },
+    };
+    try {
+      return await doFetch(baseUrl + 'users/' + id, fetchOptions);
+    } catch (e) {
+      throw new Error();
+    }
+  };
 
-  return {register, checkUserAvailable, getUser};
+  return {register, checkUserAvailable, getUser, getUserById};
 };
 
 
@@ -125,4 +138,28 @@ const useLogin = () => {
   return {postLogin};
 };
 
-export {useMedia, useUsers, useLogin};
+const useTag = () => {
+  const postTag = async (token, id, tag = appIdentifier) => {
+    const data = {
+      file_id: id,
+      tag,
+    };
+    const fetchOptions = {
+      method: 'POST',
+      headers: {
+        'x-access-token': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    };
+    try {
+      const response = await doFetch(baseUrl + 'tags', fetchOptions);
+      return response;
+    } catch (e) {
+      throw new Error('Tagging failed');
+    }
+  };
+  return {postTag};
+};
+
+export {useMedia, useUsers, useLogin, useTag};
