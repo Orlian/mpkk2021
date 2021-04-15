@@ -1,5 +1,7 @@
 import {appIdentifier, baseUrl} from '../utils/variables';
 import {useState, useEffect} from 'react';
+import {useContext} from 'react';
+import {MediaContext} from '../contexts/MediaContext';
 
 const doFetch = async (url, options = {}) => {
   const response = await fetch(url, options);
@@ -13,9 +15,10 @@ const doFetch = async (url, options = {}) => {
   }
 };
 
-const useMedia = (update = false) => {
+const useMedia = (update = false, ownFiles) => {
   const [picArray, setPicArray] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [user] = useContext(MediaContext);
   useEffect(() => {
     if (update) {
       try {
@@ -30,10 +33,17 @@ const useMedia = (update = false) => {
       setLoading(true);
       const response = await fetch(baseUrl + 'tags/' + appIdentifier);
       const files = await response.json();
-      const media = await Promise.all(files.map(async (item) => {
-        const resp = await fetch(baseUrl + 'media/' + item.file_id);
-        return resp.json();
+      let media = await Promise.all(files.map(async (item) => {
+        if (ownFiles && item.user_id !== user.user_id) {
+          return false;
+        }
+        return await doFetch(baseUrl + 'media/' + item.file_id);
       }));
+      if (ownFiles) {
+        media = media.filter((item) => {
+          return item.user_id === user.user_id;
+        });
+      }
       setPicArray(media);
     } catch (e) {
       throw new Error(e.message);
@@ -60,7 +70,42 @@ const useMedia = (update = false) => {
       setLoading(false);
     }
   };
-  return {getMedia, postMedia, loading, picArray};
+  const putMedia = async (data, id, token) => {
+    setLoading(true);
+    const fetchOptions = {
+      method: 'PUT',
+      headers: {
+        'x-access-token': token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    };
+    try {
+      return await doFetch(baseUrl + 'media/'+id, fetchOptions);
+    } catch (e) {
+      throw new Error('modify failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteMedia = async (id, token) => {
+    setLoading(true);
+    const fetchOptions = {
+      method: 'DELETE',
+      headers: {
+        'x-access-token': token,
+      },
+    };
+    try {
+      return await doFetch(baseUrl + 'media/'+id, fetchOptions);
+    } catch (e) {
+      throw new Error('delete failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+  return {getMedia, postMedia, putMedia, deleteMedia, loading, picArray};
 };
 
 const useUsers = () => {

@@ -10,14 +10,15 @@ import {
 } from '@material-ui/core';
 import {useUsers} from '../hooks/ApiHooks';
 import {useEffect, useState} from 'react';
+import BackButton from '../components/BackButton';
 
 const useStyles = makeStyles({
   root: {
-    maxWidth: 400,
+    maxWidth: '100%',
     margin: 'auto',
   },
   media: {
-    height: 200,
+    height: '50vh',
   },
 });
 
@@ -27,30 +28,46 @@ const Single = ({location}) => {
   const classes = useStyles();
   const {getUserById} = useUsers();
   const file = location.state;
-  const desc = JSON.parse(file.description);
+  let desc = {};
+  try {
+    desc = JSON.parse(file.description);
+    console.log(desc);
+  } catch (e) {
+    desc = {description: file.description};
+  }
   useEffect(() => {
     (async () => {
-      setOwner(await getUserById(localStorage.getItem('token'), file.user_id));
+      try {
+        setOwner(
+            await getUserById(localStorage.getItem('token'), file.user_id));
+      } catch (e) {
+        console.error('setOwner error', e.message);
+      }
     })();
   }, []);
   return (
-    <Card className={classes.root} raised={true}>
-      <CardActionArea>
-        <CardMedia className={classes.media}
-          style={{
-            filter: `brightness(${desc.filters.brightness}%)
+    <>
+      <BackButton />
+      <Card className={classes.root} raised={true}>
+        <CardActionArea>
+          <CardMedia className={classes.media}
+            style={{
+              filter: `brightness(${desc.filters.brightness}%)
                       contrast(${desc.filters.contrast}%)
                       saturate(${desc.filters.saturate}%)
                       sepia(${desc.filters.sepia}%)`,
-          }}
-          image={uploadsUrl + file.filename}
-          title={file.title}/>
-        <CardContent>
-          <Typography>{desc.description}</Typography>
-          <Typography variant={'subtitle2'}>{owner?.username}</Typography>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+            }}
+            component={file.media_type}
+            controls
+            image={uploadsUrl + file.filename}
+            title={file.title}/>
+          <CardContent>
+            <Typography gutterBottom>{desc.description}</Typography>
+            <Typography variant={'subtitle2'}>{owner?.username}</Typography>
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </>
   );
 };
 
