@@ -98,7 +98,10 @@ const useMedia = (update = false, ownFiles) => {
       },
     };
     try {
-      return await doFetch(baseUrl + 'media/'+id, fetchOptions);
+      const resp = await doFetch(baseUrl + 'media/'+id, fetchOptions);
+      if (resp) {
+        await getMedia();
+      }
     } catch (e) {
       throw new Error('delete failed');
     } finally {
@@ -159,8 +162,25 @@ const useUsers = () => {
       throw new Error();
     }
   };
+  const putUser = async (inputs, token) => {
+    const fetchOptions = {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-access-token': token,
+      },
+      body: JSON.stringify(inputs),
+    };
+    try {
+      const response = await doFetch(baseUrl + 'users', fetchOptions);
+      console.log('ApiHooks register response', response);
+      return response;
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
 
-  return {register, checkUserAvailable, getUser, getUserById};
+  return {register, checkUserAvailable, getUser, getUserById, putUser};
 };
 
 
